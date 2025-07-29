@@ -1,0 +1,25 @@
+<div *ngIf="loading" class="text-gray-500">Chargement de l'événement...</div>
+<div *ngIf="error" class="text-red-600 font-semibold">{{ error }}</div>
+<div *ngIf="!loading && !error && event" class="bg-white rounded shadow p-6 mt-6">
+  <h2 class="text-2xl font-bold text-blue-700 mb-2">{{ event.title }}</h2>
+  <p class="mb-2 text-gray-700">{{ event.description }}</p>
+  <p class="mb-2 text-gray-500">Date : {{ event.date | date:'medium' }}</p>
+  <img *ngIf="event.image_url" [src]="event.image_url" alt="Image de l'événement" class="max-w-md rounded mb-4 border" />
+
+  <h3 class="text-lg font-semibold mt-4 mb-2">Tickets disponibles</h3>
+  <div *ngIf="tickets.length === 0" class="text-gray-500">Aucun ticket disponible pour cet événement.</div>
+  <div *ngFor="let category of (ticketsByCategory | keyvalue)" class="mb-4">
+    <h4 class="font-bold text-blue-600 mb-1">{{ category.key }}</h4>
+    <ul>
+      <li *ngFor="let ticket of category.value" class="flex items-center gap-2 mb-2">
+        <span class="font-semibold">Prix :</span> <span>{{ ticket.price }} FCFA</span>
+        <span class="ml-2">| Stock : {{ ticket.stock }}</span>
+        <form (ngSubmit)="onReserve(ticket, quantity[ticket.id] || 1)" class="flex items-center gap-2 ml-4">
+          <input type="number" min="1" [max]="ticket.stock" [(ngModel)]="quantity[ticket.id]" name="qty{{ticket.id}}" class="border rounded px-2 py-1 w-16 focus:outline-none focus:ring-2 focus:ring-blue-400" [disabled]="ticket.stock === 0">
+          <button type="submit" [disabled]="ticket.stock === 0" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Réserver/Acheter</button>
+        </form>
+      </li>
+    </ul>
+  </div>
+  <a routerLink="/" class="inline-block mt-4 text-blue-600 hover:underline">Retour à la liste des événements</a>
+</div>

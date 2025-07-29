@@ -1,0 +1,39 @@
+<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">
+  <h2 *ngIf="mode === 'login'" class="text-2xl font-bold mb-4 text-blue-700">Connexion</h2>
+  <h2 *ngIf="mode === 'register'" class="text-2xl font-bold mb-4 text-blue-700">Inscription</h2>
+
+  <form (ngSubmit)="onSubmit()" class="flex flex-col gap-3">
+    <div *ngIf="mode === 'register'">
+      <label class="block mb-1 font-semibold">Nom :</label>
+      <input type="text" [(ngModel)]="form.name" name="name" required class="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400">
+    </div>
+    <div>
+      <label class="block mb-1 font-semibold">Email :</label>
+      <input type="email" [(ngModel)]="form.email" name="email" required class="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400">
+    </div>
+    <div>
+      <label class="block mb-1 font-semibold">Mot de passe :</label>
+      <input type="password" [(ngModel)]="form.password" name="password" required class="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400">
+    </div>
+    <div *ngIf="mode === 'register'">
+      <label class="block mb-1 font-semibold">Téléphone :</label>
+      <input type="text" [(ngModel)]="form.telephone" name="telephone" class="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400">
+    </div>
+    <div *ngIf="mode === 'register'">
+      <label class="block mb-1 font-semibold">Rôle :</label>
+      <select [(ngModel)]="form.role" name="role" class="border rounded px-3 py-2 w-full">
+        <option value="user">Utilisateur</option>
+        <option value="organizer">Organisateur</option>
+      </select>
+    </div>
+    <button type="submit" [disabled]="loading" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-2">{{ mode === 'login' ? 'Se connecter' : 'S\'inscrire' }}</button>
+  </form>
+
+  <div *ngIf="error" class="text-red-600 font-semibold mt-2">{{ error }}</div>
+  <div *ngIf="success" class="text-green-600 font-semibold mt-2">{{ success }}</div>
+  <div *ngIf="loading" class="text-gray-500 mt-2">Traitement...</div>
+
+  <button (click)="switchMode()" class="mt-4 text-blue-600 hover:underline">
+    {{ mode === 'login' ? 'Créer un compte' : 'Déjà inscrit ? Se connecter' }}
+  </button>
+</div>

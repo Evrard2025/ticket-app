@@ -1,0 +1,20 @@
+<nav class="fixed top-0 left-0 w-full z-50 bg-gradient-to-b from-black/60 to-transparent flex items-center justify-between px-10 py-4">
+  <div class="flex items-center gap-2">
+    <span class="text-white text-2xl font-extrabold tracking-widest">TICKET FEST</span>
+  </div>
+  <div class="flex gap-6 items-center">
+    <a routerLink="/" class="text-white font-semibold hover:text-yellow-400 transition">Accueil</a>
+    <a routerLink="/events" class="text-white font-semibold hover:text-yellow-400 transition">Événements</a>
+    <ng-container *ngIf="!isLoggedIn">
+      <a routerLink="/auth" class="text-white font-semibold hover:text-yellow-400 transition">Connexion</a>
+    </ng-container>
+    <ng-container *ngIf="isLoggedIn">
+      <a routerLink="/profile" class="text-white font-semibold hover:text-yellow-400 transition">Profil</a>
+      <a *ngIf="userRole === 'organizer'" routerLink="/dashboard" class="text-white font-semibold hover:text-yellow-400 transition">Dashboard</a>
+      <button (click)="logout()" class="ml-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Déconnexion</button>
+    </ng-container>
+  </div>
+</nav>
+<div class="pt-24">
+  <router-outlet></router-outlet>
+</div>

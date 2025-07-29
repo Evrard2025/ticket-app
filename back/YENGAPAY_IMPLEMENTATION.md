@@ -75,6 +75,7 @@ const YENGA_CONFIG = {
 ### 2. Webhook de notification
 
 **Endpoint :** `POST /api/payment/yengapay/webhook`
+secret code webhook : 92f9e221-5955-4a4a-a30c-dbd74d77b6b5
 
 **Processus :**
 1. Réception du webhook YengaPay

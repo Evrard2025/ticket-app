@@ -5,9 +5,9 @@ const crypto = require('crypto');
 
 const YENGA_CONFIG = {
   // Configuration de base
-  API_KEY: process.env.YENGA_API_KEY || 'vRFH0eRawW702LisWcECWQOOIciMwrwj',
-  GROUP_ID: process.env.YENGA_GROUP_ID || '10823582',
-  PAYMENT_INTENT_ID: process.env.YENGA_PAYMENT_INTENT_ID || '45842',
+  API_KEY: process.env.YENGA_API_KEY || 'FY2JesSN7qENbWoKfERlIcIvtfoBCjFl',
+  GROUP_ID: process.env.YENGA_GROUP_ID || '10315194',
+  PAYMENT_INTENT_ID: process.env.YENGA_PAYMENT_INTENT_ID || '61819',
   
   // URLs de l'API
   BASE_URL: 'https://api.yengapay.com',
@@ -26,7 +26,7 @@ const YENGA_CONFIG = {
   DEFAULT_IMAGE: 'https://quixy.com/wp-content/uploads/2020/05/Solutions_Finance_Theme-1.png',
   
   // Configuration webhook
-  WEBHOOK_SECRET: process.env.YENGA_WEBHOOK_SECRET || '78276155-1600-45ce-b161-8cc5a8194d9a',
+  WEBHOOK_SECRET: process.env.YENGA_WEBHOOK_SECRET || '92f9e221-5955-4a4a-a30c-dbd74d77b6b5',
   
   // Statuts de transaction
   STATUS: {
