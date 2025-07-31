@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrder } from '@/contexts/OrderContext';
+import { useCart } from '@/contexts/CartContext';
 import Layout from '@/components/layout/Layout';
 
 interface PaymentStatus {
@@ -22,6 +23,7 @@ const PaymentConfirmationPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { refreshOrders } = useOrder();
+  const { clearCart } = useCart();
   
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,9 +64,21 @@ const PaymentConfirmationPage = () => {
           orderId: payment.orderId
         });
         
-        // Si le paiement est réussi, rafraîchir les commandes
+        // Si le paiement est réussi, rafraîchir les commandes et vider le panier
         if (payment.status === 'completed' && user?.id) {
           await refreshOrders(user.id.toString());
+          
+          // Vider le panier en utilisant les données stockées
+          const pendingCartItems = sessionStorage.getItem('pendingCartItems');
+          if (pendingCartItems) {
+            console.log('🧹 Vidage du panier après paiement réussi');
+            clearCart();
+            sessionStorage.removeItem('pendingCartItems');
+            sessionStorage.removeItem('pendingOrders');
+          } else {
+            // Fallback : vider le panier normalement
+            clearCart();
+          }
         }
       } else {
         setError('Paiement non trouvé');

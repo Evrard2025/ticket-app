@@ -22,13 +22,6 @@ const CartPage = () => {
     return null;
   }
 
-  const handleCheckout = async () => {
-    if (cartItems.length === 0) return;
-    
-    // Rediriger vers la page de paiement au lieu du checkout direct
-    navigate('/payment');
-  };
-
   const handleYengaPayCheckout = async () => {
     if (cartItems.length === 0) return;
     
@@ -143,7 +136,7 @@ const CartPage = () => {
                   </div>
                 </CardContent>
                 <CardFooter className="flex-col gap-3">
-                  {/* Bouton YengaPay en premier */}
+                  {/* Bouton YengaPay uniquement */}
                   <Button
                     className="w-full bg-blue-600 hover:bg-blue-700"
                     onClick={handleYengaPayCheckout}
@@ -151,15 +144,6 @@ const CartPage = () => {
                   >
                     <Wallet className="h-4 w-4 mr-2" />
                     Payer avec YengaPay
-                  </Button>
-                  
-                  {/* Bouton de paiement général */}
-                  <Button
-                    className="w-full bg-red-600 hover:bg-red-700"
-                    onClick={handleCheckout}
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? 'Traitement en cours...' : 'Autres méthodes de paiement'}
                   </Button>
                   
                   <Button

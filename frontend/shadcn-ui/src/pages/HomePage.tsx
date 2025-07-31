@@ -4,7 +4,7 @@ import Layout from '@/components/layout/Layout';
 import EventCard from '@/components/EventCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Calendar, MapPin, Music, Film, Users, Gamepad2, GraduationCap, Theater, Palette } from 'lucide-react';
+import { Search, Calendar, MapPin, Music, Film, Users, Gamepad2, GraduationCap, Theater, Palette, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Event, eventCategories } from '@/lib/mock-data';
 
@@ -25,19 +25,25 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
+        
+        // Calculer les dates pour les événements récents (72h à venir)
+        const now = new Date();
+        const in72Hours = new Date(now.getTime() + (72 * 60 * 60 * 1000));
+        
         const [featuredResponse, recentResponse] = await Promise.all([
-          api.get('/events?featured=true&limit=6'),
-          api.get('/events?sort=date&limit=6')
+          api.get('/events?minRating=3.5&limit=6'), // Événements avec note > 3.5
+          api.get(`/events?startDate=${now.toISOString()}&endDate=${in72Hours.toISOString()}&sort=date&limit=6`) // Événements dans les 72h
         ]);
 
         // S'assurer que les données sont des tableaux
-        setFeaturedEvents(Array.isArray(featuredResponse.data) ? featuredResponse.data : []);
-        setRecentEvents(Array.isArray(recentResponse.data) ? recentResponse.data : []);
+        setFeaturedEvents(Array.isArray(featuredResponse) ? featuredResponse : []);
+        setRecentEvents(Array.isArray(recentResponse) ? recentResponse : []);
       } catch (err) {
         setError('Erreur lors du chargement des événements');
         console.error('Error fetching events:', err);
@@ -52,11 +58,30 @@ export default function HomePage() {
     fetchEvents();
   }, []);
 
+  // Auto-play du carousel
+  useEffect(() => {
+    if (featuredEvents.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % Math.min(4, featuredEvents.length));
+      }, 5000); // Change de slide toutes les 5 secondes
+
+      return () => clearInterval(interval);
+    }
+  }, [featuredEvents.length]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
     }
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % featuredEvents.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + featuredEvents.length) % featuredEvents.length);
   };
 
   if (loading) {
@@ -89,38 +114,139 @@ export default function HomePage() {
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-red-600 to-red-800 dark:from-[#e50914] dark:to-[#b0060f] text-white py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Découvrez des événements incroyables
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-red-100 dark:text-red-200">
-              Réservez vos billets pour les meilleurs concerts, films, sports et plus encore
-            </p>
-            
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
-              <div className="relative flex items-center">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
-                  <Input
-                    type="text"
-                    placeholder="Rechercher des événements..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-12 pr-32 py-4 text-lg bg-white dark:bg-[#181818] border-0 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-white dark:focus:ring-[#e50914] rounded-lg"
-                  />
-                </div>
+      {/* Hero Section avec Header moderne */}
+      <section className="relative min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        {/* Background Image dynamique avec overlay */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out"
+          style={{
+            backgroundImage: featuredEvents && featuredEvents.length > 0 
+              ? `url('${featuredEvents[currentSlide]?.imageUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'}')`
+              : `url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')`,
+          }}
+        >
+          <div className="absolute inset-0 bg-black/60"></div>
+        </div>
+
+
+
+        {/* Contenu principal */}
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pt-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[calc(100vh-6rem)]">
+            {/* Section gauche - Texte principal */}
+            <div className="text-white">
+              {/*
+              <div className="mb-4">
+                <p className="text-orange-400 font-medium">Paris - France</p>
+              </div>
+              */}
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                DÉCOUVREZ DES<br />
+                ÉVÉNEMENTS<br />
+                INOUBLIABLES
+              </h1>
+              <p className="text-lg text-gray-300 mb-8 leading-relaxed">
+                Réservez vos billets pour les meilleurs concerts, films, sports et plus encore. 
+                Vivez des moments exceptionnels avec TicketFlix.
+              </p>
+              
+              {/* Boutons d'action */}
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
-                  type="submit" 
-                  className="absolute right-2 bg-red-600 hover:bg-red-700 dark:bg-[#e50914] dark:hover:bg-[#b0060f] text-white px-6 py-2 rounded-md h-[calc(100%-16px)] top-2"
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-semibold rounded-lg flex items-center space-x-2"
                 >
-                  Rechercher
+                  <div className="w-4 h-4 border-l-2 border-t-2 border-white transform rotate-45"></div>
+                  <span>RÉSERVER MAINTENANT</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold rounded-lg"
+                >
+                  TOUS LES ÉVÉNEMENTS
                 </Button>
               </div>
-            </form>
+            </div>
+
+            {/* Section droite - Carousel d'événements */}
+            <div className="relative">
+              {featuredEvents && featuredEvents.length > 0 ? (
+                <div className="relative">
+                  {/* Carousel principal */}
+                  <div className="relative overflow-hidden rounded-2xl">
+                    <div 
+                      className="flex transition-transform duration-500 ease-in-out"
+                      style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                    >
+                      {featuredEvents.slice(0, 4).map((event, index) => (
+                        <div key={event.id} className="w-full flex-shrink-0">
+                          <div className="relative h-[28rem] rounded-2xl overflow-hidden">
+                            <img 
+                              src={event.imageUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'} 
+                              alt={event.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                            <div className="absolute bottom-6 left-6 right-6 text-white">
+                              <p className="text-orange-400 text-sm font-medium mb-2">
+                                {event.venue} - {event.category}
+                              </p>
+                              <h3 className="text-2xl font-bold mb-2">{event.title}</h3>
+                              <p className="text-gray-300 text-sm line-clamp-2">{event.description}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                                         {/* Navigation du carousel */}
+                     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4">
+                       <button
+                         onClick={prevSlide}
+                         className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                       >
+                         <ChevronLeft className="h-5 w-5" />
+                       </button>
+                       
+                       {/* Indicateurs de slide */}
+                       <div className="flex items-center space-x-2">
+                         {Array.from({ length: Math.min(4, featuredEvents.length) }).map((_, index) => (
+                           <button
+                             key={index}
+                             onClick={() => setCurrentSlide(index)}
+                             className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                               index === currentSlide ? 'bg-orange-500 w-6' : 'bg-white/50 hover:bg-white/70'
+                             }`}
+                           />
+                         ))}
+                       </div>
+                       
+                       <div className="flex items-center space-x-2">
+                         <div className="w-16 h-1 bg-white/30 rounded-full">
+                           <div 
+                             className="h-full bg-orange-500 rounded-full transition-all duration-300"
+                             style={{ width: `${((currentSlide + 1) / Math.min(4, featuredEvents.length)) * 100}%` }}
+                           ></div>
+                         </div>
+                         <span className="text-white text-sm font-medium">
+                           {String(currentSlide + 1).padStart(2, '0')}
+                         </span>
+                       </div>
+                       
+                       <button
+                         onClick={nextSlide}
+                         className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                       >
+                         <ChevronRight className="h-5 w-5" />
+                       </button>
+                     </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-[28rem] bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                  <p className="text-white text-lg">Aucun événement en vedette</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -150,31 +276,46 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Events */}
-      <section className="py-16 bg-white dark:bg-black">
+
+
+      {/* Section "Populaire cette semaine" */}
+      <section className="py-16 bg-black">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Événements en vedette
-            </h2>
-            <Link to="/events">
-              <Button variant="outline" className="border-gray-300 dark:border-gray-700 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-[#181818] hover:border-red-500 dark:hover:border-[#e50914]">
-                Voir tous les événements
-              </Button>
-            </Link>
-          </div>
+          <h2 className="text-2xl font-bold text-white mb-8">POPULAIRE CETTE SEMAINE</h2>
           
           {featuredEvents && featuredEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
+            <div className="relative">
+              <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+                {featuredEvents.slice(0, 6).map((event) => (
+                  <div key={event.id} className="flex-shrink-0 w-64 group">
+                    <div className="relative overflow-hidden rounded-lg">
+                      <img 
+                        src={event.imageUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'} 
+                        alt={event.title}
+                        className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="absolute bottom-3 left-3 right-3 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                        <p className="text-sm font-medium mb-1">{event.title}</p>
+                        <p className="text-xs text-gray-300">{event.venue}</p>
+                        <p className="text-xs text-orange-400">Note: {event.rating}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Navigation du carousel horizontal */}
+              <div className="absolute top-1/2 -translate-y-1/2 left-0 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors border border-white/20 cursor-pointer">
+                <ChevronLeft className="h-6 w-6" />
+              </div>
+              <div className="absolute top-1/2 -translate-y-1/2 right-0 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors border border-white/20 cursor-pointer">
+                <ChevronRight className="h-6 w-6" />
+              </div>
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
-                Aucun événement en vedette pour le moment
-              </p>
+              <p className="text-white/70 text-lg">Aucun événement populaire pour le moment</p>
             </div>
           )}
         </div>
@@ -185,7 +326,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Événements récents
+              Événements à venir
             </h2>
             <Link to="/events">
               <Button variant="outline" className="border-gray-300 dark:border-gray-700 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-[#181818] hover:border-red-500 dark:hover:border-[#e50914]">
@@ -203,7 +344,7 @@ export default function HomePage() {
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-600 dark:text-gray-400 text-lg">
-                Aucun événement récent pour le moment
+                Aucun événement dans les 72h à venir
               </p>
             </div>
           )}

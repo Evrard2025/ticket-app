@@ -108,30 +108,40 @@ const PaymentPage = () => {
     setPaymentStatus('processing');
 
     try {
-      // Option 1: Créer une commande consolidée pour tout le panier
-      const totalAmount = calculateTotal();
-      const consolidatedOrder = await api.post<{
+      // Créer toutes les commandes du panier en une fois
+      const orderItems = cartItems.map(item => ({
+        ticket_id: item.ticketCategoryId,
+        quantite: item.quantity,
+        total: item.price * item.quantity
+      }));
+
+      const orders = await api.post<{
         utilisateur_id: number;
-        ticket_id: number;
-        quantite: number;
-        total: number;
-        statut: string;
-      }, OrderResponse>('/orders', {
+        items: Array<{
+          ticket_id: number;
+          quantite: number;
+          total: number;
+        }>;
+      }, OrderResponse[]>('/orders/bulk', {
         utilisateur_id: user.id,
-        ticket_id: cartItems[0].ticketCategoryId, // Utiliser le premier ticket comme référence
-        quantite: cartItems.reduce((total, item) => total + item.quantity, 0),
-        total: totalAmount,
-        statut: 'pending'
+        items: orderItems
       });
 
-      // Créer le paiement YengaPay pour la commande consolidée
+      // Créer le paiement YengaPay pour la première commande (YengaPay ne gère qu'une commande à la fois)
+      const firstOrder = orders[0];
       const yengaPayResponse = await api.post<{
         order_id: number;
       }, YengaPayResponse>('/payment/yengapay', {
-        order_id: consolidatedOrder.id
+        order_id: firstOrder.id
       });
 
       const yengaPayment = yengaPayResponse as YengaPayResponse;
+
+      // Stocker les IDs des commandes dans sessionStorage pour les récupérer après paiement
+      sessionStorage.setItem('pendingOrders', JSON.stringify(orders.map(o => o.id)));
+      
+      // Stocker aussi les données complètes du panier pour le traitement post-paiement
+      sessionStorage.setItem('pendingCartItems', JSON.stringify(cartItems));
 
       // Rediriger vers l'URL de paiement YengaPay
       if (yengaPayment.yengapayData?.checkoutPageUrlWithPaymentToken) {

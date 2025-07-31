@@ -562,28 +562,86 @@ router.post('/yengapay/webhook', async (req, res) => {
     const updatedPayment = updateResult.rows[0];
     console.log('✅ Paiement mis à jour:', updatedPayment.statut);
 
-    // Si le paiement est réussi, mettre à jour la commande et envoyer les notifications
+    // Si le paiement est réussi, traiter toutes les commandes du panier
     if (internalStatus === 'completed') {
-      console.log(`🔄 Mise à jour de la commande ${payment.order_id} -> confirmed`);
+      console.log(`🔄 Traitement de toutes les commandes du panier pour le paiement ${payment.id}`);
       
-      await pool.query(`
-        UPDATE orders 
-        SET statut = 'confirmed', updated_at = NOW()
-        WHERE id = $1
+      // Récupérer toutes les commandes associées à ce paiement
+      const ordersResult = await pool.query(`
+        SELECT o.id, o.utilisateur_id, o.ticket_id, o.quantite, o.total
+        FROM orders o
+        WHERE o.utilisateur_id = (
+          SELECT o2.utilisateur_id 
+          FROM orders o2 
+          WHERE o2.id = $1
+        )
+        AND o.statut = 'pending'
+        AND o.created_at >= NOW() - INTERVAL '1 hour'
       `, [payment.order_id]);
       
-      console.log(`✅ Commande ${payment.order_id} confirmée après paiement YengaPay`);
+      const pendingOrders = ordersResult.rows;
+      console.log(`📋 ${pendingOrders.length} commandes en attente trouvées pour l'utilisateur`);
       
-      // Envoyer les notifications
-      console.log(`📧 Envoi des notifications pour la commande ${payment.order_id}`);
-      await sendPaymentNotifications(payment.order_id, 'success');
-      console.log(`✅ Notifications envoyées pour la commande ${payment.order_id}`);
+      // Confirmer toutes les commandes
+      for (const order of pendingOrders) {
+        console.log(`🔄 Mise à jour de la commande ${order.id} -> confirmed`);
+        
+        await pool.query(`
+          UPDATE orders 
+          SET statut = 'confirmed', updated_at = NOW()
+          WHERE id = $1
+        `, [order.id]);
+        
+        console.log(`✅ Commande ${order.id} confirmée`);
+        
+        // Envoyer les notifications pour chaque commande
+        console.log(`📧 Envoi des notifications pour la commande ${order.id}`);
+        await sendPaymentNotifications(order.id, 'success');
+        console.log(`✅ Notifications envoyées pour la commande ${order.id}`);
+      }
+      
+      console.log(`🎉 Toutes les commandes du panier ont été traitées avec succès`);
     }
 
-    // Si le paiement a échoué, envoyer une notification d'échec
+    // Si le paiement a échoué, traiter toutes les commandes du panier
     if (internalStatus === 'failed' || internalStatus === 'cancelled') {
-      console.log(`⚠️ Paiement ${payment.id} échoué, stock non affecté`);
-      await sendPaymentNotifications(payment.order_id, 'failed');
+      console.log(`⚠️ Paiement ${payment.id} échoué, annulation de toutes les commandes`);
+      
+      // Récupérer toutes les commandes associées à ce paiement
+      const ordersResult = await pool.query(`
+        SELECT o.id, o.utilisateur_id, o.ticket_id, o.quantite, o.total
+        FROM orders o
+        WHERE o.utilisateur_id = (
+          SELECT o2.utilisateur_id 
+          FROM orders o2 
+          WHERE o2.id = $1
+        )
+        AND o.statut = 'pending'
+        AND o.created_at >= NOW() - INTERVAL '1 hour'
+      `, [payment.order_id]);
+      
+      const pendingOrders = ordersResult.rows;
+      console.log(`📋 ${pendingOrders.length} commandes en attente à annuler`);
+      
+      // Annuler toutes les commandes
+      for (const order of pendingOrders) {
+        console.log(`🔄 Annulation de la commande ${order.id}`);
+        
+        await pool.query(`
+          UPDATE orders 
+          SET statut = 'cancelled', updated_at = NOW()
+          WHERE id = $1
+        `, [order.id]);
+        
+        console.log(`✅ Commande ${order.id} annulée`);
+        
+        // Envoyer les notifications d'échec pour chaque commande
+        console.log(`📧 Envoi des notifications d'échec pour la commande ${order.id}`);
+        await sendPaymentNotifications(order.id, 'failed');
+        console.log(`✅ Notifications d'échec envoyées pour la commande ${order.id}`);
+      }
+      
+      console.log(`❌ Toutes les commandes du panier ont été annulées`);
     }
 
     // Réponse de succès au webhook

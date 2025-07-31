@@ -36,7 +36,16 @@ type CartProviderProps = {
 };
 
 export const CartProvider = ({ children }: CartProviderProps) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  // Charger le panier depuis localStorage au démarrage
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
+  // Fonction pour sauvegarder le panier dans localStorage
+  const saveCartToStorage = (items: CartItem[]) => {
+    localStorage.setItem('cart', JSON.stringify(items));
+  };
 
   // Add item to cart
   const addToCart = (event: Event, ticketCategory: TicketCategory, quantity: number) => {
@@ -46,14 +55,14 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         item => item.eventId === event.id && item.ticketCategoryId === ticketCategory.id
       );
 
+      let updatedItems;
       if (existingItemIndex !== -1) {
         // Update quantity of existing item
-        const updatedItems = [...prevItems];
+        updatedItems = [...prevItems];
         updatedItems[existingItemIndex].quantity += quantity;
-        return updatedItems;
       } else {
         // Add new item
-        return [...prevItems, {
+        updatedItems = [...prevItems, {
           eventId: event.id,
           eventTitle: event.title,
           imageUrl: event.imageUrl,
@@ -63,16 +72,22 @@ export const CartProvider = ({ children }: CartProviderProps) => {
           quantity
         }];
       }
+      
+      // Sauvegarder dans localStorage
+      saveCartToStorage(updatedItems);
+      return updatedItems;
     });
   };
 
   // Remove item from cart
   const removeFromCart = (eventId: number, ticketCategoryId: number) => {
-    setCartItems(prevItems => 
-      prevItems.filter(item => 
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.filter(item => 
         !(item.eventId === eventId && item.ticketCategoryId === ticketCategoryId)
-      )
-    );
+      );
+      saveCartToStorage(updatedItems);
+      return updatedItems;
+    });
   };
 
   // Update quantity of an item
@@ -82,18 +97,21 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       return;
     }
 
-    setCartItems(prevItems => 
-      prevItems.map(item => 
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.map(item => 
         item.eventId === eventId && item.ticketCategoryId === ticketCategoryId
           ? { ...item, quantity }
           : item
-      )
-    );
+      );
+      saveCartToStorage(updatedItems);
+      return updatedItems;
+    });
   };
 
   // Clear cart
   const clearCart = () => {
     setCartItems([]);
+    saveCartToStorage([]);
   };
 
   // Calculate total price

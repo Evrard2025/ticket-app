@@ -4,14 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Search, X } from 'lucide-react';
+import { Menu, Search, X, BarChart3, ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useCart } from '@/contexts/CartContext';
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { getItemCount } = useCart();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
 
@@ -54,13 +56,35 @@ export default function Navbar() {
             >
               Événements
             </Link>
+            <Link 
+              to="/cart" 
+              className="text-gray-700 dark:text-white hover:text-red-600 dark:hover:text-[#e50914] transition-colors font-medium relative"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {getItemCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {getItemCount()}
+                </span>
+              )}
+            </Link>
             {user && (
-              <Link 
-                to="/tickets" 
-                className="text-gray-700 dark:text-white hover:text-red-600 dark:hover:text-[#e50914] transition-colors font-medium"
-              >
-                Mes Billets
-              </Link>
+              <>
+                <Link 
+                  to="/tickets" 
+                  className="text-gray-700 dark:text-white hover:text-red-600 dark:hover:text-[#e50914] transition-colors font-medium"
+                >
+                  Mes Billets
+                </Link>
+                {user.role === 'admin' && (
+                  <Link 
+                    to="/dashboard" 
+                    className="text-gray-700 dark:text-white hover:text-red-600 dark:hover:text-[#e50914] transition-colors font-medium flex items-center space-x-1"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                )}
+              </>
             )}
           </nav>
 
@@ -164,6 +188,18 @@ export default function Navbar() {
                   >
                     Événements
                   </Link>
+                  <Link 
+                    to="/cart" 
+                    className="text-gray-700 dark:text-white hover:text-red-600 dark:hover:text-[#e50914] transition-colors font-medium py-2 flex items-center space-x-2"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    <span>Panier</span>
+                    {getItemCount() > 0 && (
+                      <span className="bg-red-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                        {getItemCount()}
+                      </span>
+                    )}
+                  </Link>
                   {user && (
                     <>
                       <Link 
@@ -172,6 +208,15 @@ export default function Navbar() {
                       >
                         Mes Billets
                       </Link>
+                      {user.role === 'admin' && (
+                        <Link 
+                          to="/dashboard" 
+                          className="text-gray-700 dark:text-white hover:text-red-600 dark:hover:text-[#e50914] transition-colors font-medium py-2 flex items-center space-x-2"
+                        >
+                          <BarChart3 className="w-4 h-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      )}
                       <Link 
                         to="/account" 
                         className="text-gray-700 dark:text-white hover:text-red-600 dark:hover:text-[#e50914] transition-colors font-medium py-2"

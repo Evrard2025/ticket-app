@@ -5,7 +5,57 @@ const router = express.Router();
 // Liste des événements
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM events ORDER BY date DESC');
+    const { minRating, startDate, endDate, sort, limit, category } = req.query;
+    
+    // Construire la requête SQL de base
+    let query = 'SELECT * FROM events WHERE 1=1';
+    const params = [];
+    let paramIndex = 1;
+
+    // Filtre par note minimale
+    if (minRating) {
+      query += ` AND (note IS NOT NULL AND CAST(note AS DECIMAL) >= $${paramIndex})`;
+      params.push(parseFloat(minRating));
+      paramIndex++;
+    }
+
+    // Filtre par date de début
+    if (startDate) {
+      query += ` AND date >= $${paramIndex}`;
+      params.push(startDate);
+      paramIndex++;
+    }
+
+    // Filtre par date de fin
+    if (endDate) {
+      query += ` AND date <= $${paramIndex}`;
+      params.push(endDate);
+      paramIndex++;
+    }
+
+    // Filtre par catégorie
+    if (category) {
+      query += ` AND categorie = $${paramIndex}`;
+      params.push(category);
+      paramIndex++;
+    }
+
+    // Tri
+    if (sort === 'date') {
+      query += ' ORDER BY date ASC';
+    } else if (sort === 'rating') {
+      query += ' ORDER BY CAST(note AS DECIMAL) DESC';
+    } else {
+      query += ' ORDER BY date DESC';
+    }
+
+    // Limite
+    if (limit) {
+      query += ` LIMIT $${paramIndex}`;
+      params.push(parseInt(limit));
+    }
+
+    const result = await pool.query(query, params);
     
     // Adapter les noms de colonnes pour le frontend et ajouter les catégories
     const events = await Promise.all(result.rows.map(async (e) => {
@@ -35,7 +85,7 @@ router.get('/', async (req, res) => {
           id: t.id,
           name: t.categorie,
           price: t.prix,
-          description: `${t.categorie} - ${t.prix}€`,
+          description: `${t.categorie} - ${t.prix} FCFA`,
           availableCount: Math.max(0, parseInt(t.available_stock) || 0)
         }))
       };
@@ -82,7 +132,7 @@ router.get('/:id', async (req, res) => {
         id: t.id,
         name: t.categorie,
         price: t.prix,
-        description: `${t.categorie} - ${t.prix}€`,
+        description: `${t.categorie} - ${t.prix} FCFA`,
         availableCount: Math.max(0, parseInt(t.available_stock) || 0),
         totalStock: t.stock
       }))

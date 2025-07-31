@@ -48,9 +48,9 @@ export const mockEvents: Event[] = [
     rating: "5.0",
     duration: "3 jours",
     categories: [
-      { id: 1, name: "VIP", price: 150, description: "Accès backstage et rencontre avec les artistes", availableCount: 50 },
-      { id: 2, name: "Standard", price: 75, description: "Accès à tous les concerts", availableCount: 500 },
-      { id: 3, name: "Étudiant", price: 45, description: "Sur présentation d'une carte étudiante", availableCount: 200 }
+      { id: 1, name: "VIP", price: 98300, description: "Accès backstage et rencontre avec les artistes", availableCount: 50 },
+      { id: 2, name: "Standard", price: 49100, description: "Accès à tous les concerts", availableCount: 500 },
+      { id: 3, name: "Étudiant", price: 29500, description: "Sur présentation d'une carte étudiante", availableCount: 200 }
     ]
   },
   {
@@ -66,9 +66,9 @@ export const mockEvents: Event[] = [
     rating: "4.8",
     duration: "1 jour",
     categories: [
-      { id: 1, name: "Premium", price: 199, description: "Accès à toutes les conférences et ateliers + déjeuner", availableCount: 100 },
-      { id: 2, name: "Standard", price: 99, description: "Accès à toutes les conférences", availableCount: 300 },
-      { id: 3, name: "Virtual", price: 49, description: "Accès en ligne à toutes les conférences", availableCount: 1000 }
+      { id: 1, name: "Premium", price: 130400, description: "Accès à toutes les conférences et ateliers + déjeuner", availableCount: 100 },
+      { id: 2, name: "Standard", price: 64800, description: "Accès à toutes les conférences", availableCount: 300 },
+      { id: 3, name: "Virtual", price: 32100, description: "Accès en ligne à toutes les conférences", availableCount: 1000 }
     ]
   },
   {
@@ -84,9 +84,9 @@ export const mockEvents: Event[] = [
     rating: "4.9",
     duration: "3 heures",
     categories: [
-      { id: 1, name: "Golden Circle", price: 250, description: "Debout devant la scène", availableCount: 200 },
-      { id: 2, name: "Tribune", price: 150, description: "Place assise en tribune", availableCount: 5000 },
-      { id: 3, name: "Pelouse", price: 80, description: "Accès à la pelouse", availableCount: 10000 }
+      { id: 1, name: "Golden Circle", price: 163800, description: "Debout devant la scène", availableCount: 200 },
+      { id: 2, name: "Tribune", price: 98300, description: "Place assise en tribune", availableCount: 5000 },
+      { id: 3, name: "Pelouse", price: 52400, description: "Accès à la pelouse", availableCount: 10000 }
     ]
   },
   {
@@ -102,9 +102,9 @@ export const mockEvents: Event[] = [
     rating: "4.7",
     duration: "2 jours",
     categories: [
-      { id: 1, name: "Professionnel", price: 450, description: "Formation complète + certification", availableCount: 50 },
-      { id: 2, name: "Standard", price: 350, description: "Formation complète", availableCount: 100 },
-      { id: 3, name: "Étudiant", price: 200, description: "Tarif étudiant avec justificatif", availableCount: 30 }
+      { id: 1, name: "Professionnel", price: 295000, description: "Formation complète + certification", availableCount: 50 },
+      { id: 2, name: "Standard", price: 229000, description: "Formation complète", availableCount: 100 },
+      { id: 3, name: "Étudiant", price: 131000, description: "Tarif étudiant avec justificatif", availableCount: 30 }
     ]
   },
   {
@@ -120,9 +120,9 @@ export const mockEvents: Event[] = [
     rating: "4.6",
     duration: "2 heures",
     categories: [
-      { id: 1, name: "VIP", price: 100, description: "Premier rang + rencontre avec le magicien", availableCount: 20 },
-      { id: 2, name: "Orchestre", price: 65, description: "Places orchestre", availableCount: 200 },
-      { id: 3, name: "Balcon", price: 45, description: "Places balcon", availableCount: 150 }
+      { id: 1, name: "VIP", price: 65500, description: "Premier rang + rencontre avec le magicien", availableCount: 20 },
+      { id: 2, name: "Orchestre", price: 42600, description: "Places orchestre", availableCount: 200 },
+      { id: 3, name: "Balcon", price: 29500, description: "Places balcon", availableCount: 150 }
     ]
   },
   {
@@ -138,9 +138,9 @@ export const mockEvents: Event[] = [
     rating: "4.9",
     duration: "2 heures",
     categories: [
-      { id: 1, name: "Loge", price: 300, description: "Loge privative avec service", availableCount: 10 },
-      { id: 2, name: "Tribune Centrale", price: 150, description: "Place en tribune centrale", availableCount: 2000 },
-      { id: 3, name: "Tribune Latérale", price: 80, description: "Place en tribune latérale", availableCount: 5000 }
+      { id: 1, name: "Loge", price: 196500, description: "Loge privative avec service", availableCount: 10 },
+      { id: 2, name: "Tribune Centrale", price: 98300, description: "Place en tribune centrale", availableCount: 2000 },
+      { id: 3, name: "Tribune Latérale", price: 52400, description: "Place en tribune latérale", availableCount: 5000 }
     ]
   },
   {
@@ -156,9 +156,9 @@ export const mockEvents: Event[] = [
     rating: "4.8",
     duration: "2.5 heures",
     categories: [
-      { id: 1, name: "Carré Or", price: 85, description: "Meilleures places centrales", availableCount: 100 },
-      { id: 2, name: "Catégorie 1", price: 65, description: "Places de catégorie 1", availableCount: 200 },
-      { id: 3, name: "Catégorie 2", price: 45, description: "Places de catégorie 2", availableCount: 300 }
+      { id: 1, name: "Carré Or", price: 55700, description: "Meilleures places centrales", availableCount: 100 },
+      { id: 2, name: "Catégorie 1", price: 42600, description: "Places de catégorie 1", availableCount: 200 },
+      { id: 3, name: "Catégorie 2", price: 29500, description: "Places de catégorie 2", availableCount: 300 }
     ]
   },
   {
@@ -174,9 +174,9 @@ export const mockEvents: Event[] = [
     rating: "4.7",
     duration: "Accès journée",
     categories: [
-      { id: 1, name: "Premium", price: 25, description: "Accès à l'exposition + audio guide + catalogue", availableCount: 200 },
-      { id: 2, name: "Standard", price: 15, description: "Accès à l'exposition", availableCount: 500 },
-      { id: 3, name: "Réduit", price: 10, description: "Tarif réduit (étudiants, seniors)", availableCount: 300 }
+      { id: 1, name: "Premium", price: 16400, description: "Accès à l'exposition + audio guide + catalogue", availableCount: 200 },
+      { id: 2, name: "Standard", price: 9830, description: "Accès à l'exposition", availableCount: 500 },
+      { id: 3, name: "Réduit", price: 6550, description: "Tarif réduit (étudiants, seniors)", availableCount: 300 }
     ]
   }
 ];

@@ -23,6 +23,15 @@ import AccountPage from './pages/AccountPage';
 import TicketsPage from './pages/TicketsPage';
 import NotFound from './pages/NotFound';
 
+// Dashboard Pages
+import DashboardPage from './pages/DashboardPage';
+import DashboardEventsPage from './pages/DashboardEventsPage';
+import DashboardOrdersPage from './pages/DashboardOrdersPage';
+import DashboardUsersPage from './pages/DashboardUsersPage';
+import DashboardAnalyticsPage from './pages/DashboardAnalyticsPage';
+import DashboardNewEventPage from './pages/DashboardNewEventPage';
+import DashboardNewUserPage from './pages/DashboardNewUserPage';
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -47,6 +56,16 @@ const App = () => (
                   <Route path="/confirmation/:id" element={<OrderConfirmationPage />} />
                   <Route path="/account" element={<AccountPage />} />
                   <Route path="/tickets" element={<TicketsPage />} />
+                  
+                                  {/* Dashboard Routes */}
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/dashboard/events" element={<DashboardEventsPage />} />
+                <Route path="/dashboard/events/new" element={<DashboardNewEventPage />} />
+                <Route path="/dashboard/orders" element={<DashboardOrdersPage />} />
+                <Route path="/dashboard/users" element={<DashboardUsersPage />} />
+                <Route path="/dashboard/users/new" element={<DashboardNewUserPage />} />
+                <Route path="/dashboard/analytics" element={<DashboardAnalyticsPage />} />
+                  
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

@@ -93,6 +93,69 @@ router.get('/', async (req, res) => {
   res.json(orders);
 });
 
+// Création de plusieurs commandes (pour le panier)
+router.post('/bulk', async (req, res) => {
+  const { utilisateur_id, items } = req.body;
+  
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'Items requis' });
+  }
+
+  try {
+    const orders = [];
+    
+    for (const item of items) {
+      const { ticket_id, quantite, total } = item;
+      
+      // Vérifier le stock disponible
+      const stockResult = await pool.query(`
+        SELECT t.stock,
+               COALESCE(SUM(o.quantite), 0) as sold_quantity
+        FROM tickets t
+        LEFT JOIN orders o ON t.id = o.ticket_id AND o.statut IN ('confirmed', 'paid', 'completed')
+        WHERE t.id = $1
+        GROUP BY t.stock
+      `, [ticket_id]);
+
+      if (stockResult.rows.length === 0) {
+        return res.status(404).json({ error: `Ticket ${ticket_id} non trouvé` });
+      }
+
+      const { stock, sold_quantity } = stockResult.rows[0];
+      const availableStock = Math.max(0, stock - sold_quantity);
+
+      if (availableStock < quantite) {
+        return res.status(400).json({ 
+          error: `Stock insuffisant pour le ticket ${ticket_id}`, 
+          availableStock, 
+          requestedQuantity: quantite 
+        });
+      }
+
+      // Créer la commande
+      const result = await pool.query(
+        'INSERT INTO orders (utilisateur_id, ticket_id, quantite, total, statut) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+        [utilisateur_id, ticket_id, quantite, total, 'pending']
+      );
+      
+      const o = result.rows[0];
+      orders.push({
+        id: o.id,
+        userId: o.utilisateur_id,
+        ticketId: o.ticket_id,
+        quantity: o.quantite,
+        total: o.total,
+        status: o.statut
+      });
+    }
+    
+    res.status(201).json(orders);
+  } catch (err) {
+    console.error('Erreur lors de la création des commandes:', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 // Détail d'une commande
 router.get('/:id', async (req, res) => {
   const result = await pool.query('SELECT * FROM orders WHERE id = $1', [req.params.id]);
